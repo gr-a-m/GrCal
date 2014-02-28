@@ -11,9 +11,9 @@ newtype Id = Id String deriving Show
 data Expr = MemberExpr Id In Id | FunctionExpr [Id] deriving Show
 data Stmt = PrintId Print Id | PrintExpr Print Expr | AssignStmt Let Id Equ Expr deriving Show
 
-newtype Elem = Elem Id
-data TableLine = TableLine [Elem]
-data Table = Table [TableLine]
+newtype Elem = Elem Id deriving Show
+data TableLine = TableLine [Elem] deriving Show
+data Table = Table TableLine [TableLine] deriving Show
 
 -- |This parser just gets the reserved word let
 let' :: Parser Let
@@ -108,16 +108,20 @@ remainingElems :: Parser [Elem]
 remainingElems = (char '\t' >> elems) <|> return []
 
 -- |This parser reads a line full of elements of a group
-tableLine :: Parser TableLine
-tableLine = do
+tableLines :: Parser [TableLine]
+tableLines = do
   lineElems <- elems
-  return $ TableLine lineElems
+  remaining <- remainingLines
+  return $ TableLine lineElems : remaining
+
+remainingLines :: Parser [TableLine]
+remainingLines = (char '\n' >> tableLines) <|> return []
 
 -- |This parser reads multiple lines from a table.
 table :: Parser Table
 table = do
-  lines <- many tableLine
-  return $ Table lines
+  lines <- tableLines
+  return $ Table (head lines) (tail lines)
 
 parseTable :: String -> Either ParseError Table
 parseTable = parse table "(unknown)"
