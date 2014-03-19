@@ -1,4 +1,4 @@
-module Parsing (Expr, Stmt, stmt, Table(..), table, parseTable) where
+module GrCal.Parsing (Expr, Elem, Stmt, stmt, Table(..), TableLine(..), table, parseTable) where
 
 import Prelude hiding (elem, lines)
 import Text.ParserCombinators.Parsec
@@ -7,13 +7,18 @@ data Let = Let deriving Show
 data Equ = Equ deriving Show
 data In = In deriving Show
 data Print = Print deriving Show
-newtype Id = Id String deriving Show
+newtype Id = Id String deriving (Eq, Ord, Show)
 data Expr = MemberExpr Id In Id | FunctionExpr [Id] deriving Show
 data Stmt = PrintId Print Id | PrintExpr Print Expr | AssignStmt Let Id Equ Expr deriving Show
 
-newtype Elem = Elem Id deriving Show
-data TableLine = TableLine [Elem] deriving Show
-data Table = Table TableLine [TableLine] deriving Show
+newtype Elem = Elem Id deriving (Eq, Ord, Show)
+data TableLine = TableLine {
+  elementList :: [Elem]
+} deriving (Show)
+data Table = Table {
+  elementRow :: TableLine,
+  operationRows :: [TableLine]
+} deriving (Show)
 
 -- |This parser just gets the reserved word let
 let' :: Parser Let
