@@ -1,4 +1,4 @@
-module Parsing (Expr, Stmt, stmt, Table, table, parseTable) where
+module Parsing (Expr, Stmt, stmt, Table(..), table, parseTable) where
 
 import Prelude hiding (elem, lines)
 import Text.ParserCombinators.Parsec

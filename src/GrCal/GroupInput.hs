@@ -1,4 +1,4 @@
-module GrCal.GroupInput where
+module GroupInput where
 
 import qualified Data.Array as A
 import qualified Data.Set as S
@@ -27,9 +27,9 @@ checkUniqueness :: Table -> Either InputError Bool
 checkUniqueness Table t _ =
   -- Find the size of the first line and the size of unique elements in the
   -- line using a set.
-  let firstLine = map String (head t)
-      lineSet = Set firstLine in
-      if length firstLine == size lineSet then
+  let firstLine = map string (head t)
+      lineSet = S.fromList firstLine in
+      if length firstLine == S.size lineSet then
         Right True
       else
         Left GroupError "Duplicate group elements declared in table"
@@ -53,20 +53,20 @@ checkLengths (Table _ (x:xs)) n =
 
 -- |This function takes an index for the 2d array and checks to make sure
 -- that the row and column of that index have unique elements
-checkIndex :: (Ix a, Ix b) => Array (a,b) d -> a -> a -> Bool
-checkIndex Array (a,b) arr index n =
-  let columnSet = S.Set [arr!(a,k) | k <- range (1, n)]
-      rowSet = S.Set [arr!(k,b) | k <- range (1, n)] in
-      size columnSet == n and size rowSet == n
+checkIndex :: (A.Ix a, A.Ix b) => A.Array (a,b) d -> a -> a -> Bool
+checkIndex (a,b) arr index n =
+  let columnSet = S.fromList [arr A.! (a,k) | k <- A.range (1, n)]
+      rowSet = S.fromList [arr A.! (k,b) | k <- A.range (1, n)] in
+      (S.size columnSet == n) and (S.size rowSet == n)
 
 -- |This function checks that the operation is properly defined (i.e.
 -- "sudoku rules")
 checkOperation :: Table -> Either InputError Bool
 checkOperation Table t ts =
-  let s = S.Set t
-      n = size s
-      a = A.listArray ((1, 1), (size s, size s)) ts in
-      if foldl (\ t (i,j) -> t and checkIndex a (i,j) n) True [(x,x) | x <- range(1,n)] then
+  let s = S.fromList t
+      n = S.size s
+      a = A.listArray ((1, 1), (n,n)) ts in
+      if foldl (\ t (i,j) -> t and checkIndex a (i,j) n) True [(x,x) | x <- A.range(1,n)] then
         Right True
       else
         GroupError "Operation violates \"sudoku rules\""

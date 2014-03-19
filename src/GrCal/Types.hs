@@ -1,4 +1,4 @@
-module GrCal.Types where
+module Types where
 
 import qualified Data.Map as M
 import qualified Data.Set as S
