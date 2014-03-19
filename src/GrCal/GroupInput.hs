@@ -7,20 +7,43 @@ import GrCal.Parsing
 import GrCal.Types (Group)
 import Text.ParserCombinators.Parsec
 
-data InputError = GroupError String | InputParseError ParseError
+data InputError = GroupError String | InputParseError ParseError deriving Show
+newtype InputErrors = InputErrors [InputError] deriving Show
 
 -- |This is the API-level function that takes a group table (in the form of
 -- a slurped string) and produces either an error or the Group.
-readGroup :: String -> Either InputError Group
+readGroup :: String -> Either InputErrors Group
 readGroup input =
   case parseTable input of
-    Left parseErrors -> Left $ InputParseError parseErrors
-    Right parsedTable -> convertTable parsedTable
+    Left parseErrors -> Left $ InputErrors [InputParseError parseErrors]
+    Right parsedTable ->
+      case checkAll parsedTable of
+        Left groupErrors -> Left groupErrors
+        Right _ -> Right $ convertTable parsedTable
 
--- |This function takes a Table and produces either a parse/group error or
--- a well-defined Group
-convertTable :: Table -> Either InputError Group
+-- |This function takes a valid table and produces a Group structure
+convertTable :: Table -> Group
 convertTable t = undefined
+
+-- |This is used by checkAll to convert a list of eithers to just the left
+-- values.
+leftOrNone :: Either a b -> [a]
+leftOrNone e = case e of
+  Right m -> []
+  Left m -> [m]
+
+checkAll :: Table -> Either InputErrors Bool
+checkAll t =
+  let
+    unique = checkUniqueness t
+    lengths = checkLengths t (length $ elementList $ elementRow t)
+    operationCheck = checkOperation t
+    errors = foldl (\a b -> a ++ leftOrNone b) [] [unique, lengths, operationCheck]
+  in
+    if null errors then
+      Right True
+    else
+      Left $ InputErrors errors
 
 -- |This function takes a table an makes sure that the elements enumerated
 -- in the first line are unique.
