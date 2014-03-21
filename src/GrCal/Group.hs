@@ -47,3 +47,17 @@ commutePairs g =
       M.findWithDefault (Element "lin") (y,x) gop) |
       x <- S.elems elementSet, y <- S.elems elementSet]
 
+-- |Given a modulus and a list of integers, create a map from the elements
+-- to their sums reduced by the modulus.
+zMap :: Int -> [Int] -> M.Map (Element, Element) Element
+zMap n mem = M.fromList [((Element $ show x, Element $ show y), Element $ show $ x + y `mod` n) | x <- mem, y <- mem]
+
+-- |Build the group Z_n from the provided integer.
+groupZ :: Int -> Group
+groupZ n =
+  let
+    groupMembers = [0 .. n]
+    opm = zMap n groupMembers
+  in
+    Group (S.fromList $ map (Element . show) groupMembers) opm
+
