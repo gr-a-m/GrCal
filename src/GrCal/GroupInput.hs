@@ -24,30 +24,33 @@ readGroup input =
 
 -- |Convert a 2D Map based on a list of ordered elements and the associated
 -- operation matrix.
-buildMap :: [a] -> [[a]] -> M.Map (a, a) a
+buildMap :: (Ord a) => [a] -> [[a]] -> M.Map (a, a) a
 buildMap elems mat =
   let
     zipped = zip elems mat
   in
-    foldl (\ a b -> M.union a $ buildPairs (fst b) elems (snd b)) M.empty mat
+    foldl (\ a b -> M.union a $ buildPairs (fst b) elems (snd b)) M.empty zipped
 
 -- |Helper for buildMap
-buildPairs :: a -> [a] -> [a] -> M.Map (a, a) a
+buildPairs :: (Ord a) => a -> [a] -> [a] -> M.Map (a, a) a
 buildPairs x elems line =
   let
     zipped = zip elems line
   in
     foldl (\ a b -> M.insert (x, fst b) (snd b) a) M.empty zipped
 
+opToElem :: [TableLine] -> [[Element]]
+opToElem = map (map (Element . unelems ) . elementList)
+
 -- |This function takes a valid table and produces a Group structure
 convertTable :: Table -> Group
 convertTable t =
   let
     tableElements = elementList $ elementRow t
-    members = S.fromList tableElements
-    operationMap = buildMap $ operationRows t
+    members = map (Element . unelems) tableElements
+    operationMap = buildMap members $ opToElem $ operationRows t
   in
-    Group members operationMap
+    Group (S.fromList members) operationMap
 
 -- |This is used by checkAll to convert a list of eithers to just the left
 -- values.

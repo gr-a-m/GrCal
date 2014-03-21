@@ -1,6 +1,7 @@
 module GrCal.Group where
 
 import qualified Data.Map as M
+import Data.Maybe (fromMaybe)
 import qualified Data.Set as S
 
 -- |An element is just some identifying string
@@ -10,7 +11,7 @@ newtype Element = Element String deriving (Show, Ord, Eq)
 data Group = Group {
   members :: S.Set Element,
   groupOperation :: M.Map (Element, Element) Element
-}
+} deriving Show
 
 -- |This function naively takes a group and determines if it is cyclic or
 -- not.
@@ -27,13 +28,19 @@ cyclic' g c e n = -- Next is c^{size - n + 2}
     groupElements = members g
   in
     if maybe True (== c) next then -- If we found the generator before n, False
-      S.size groupElements - n + 2 == S.size groupElements
+      S.size groupElements - n + 1 == S.size groupElements
     else
-      cyclic' g c e (n - 1)
+      cyclic' g c (fromMaybe e next) (n - 1)
+
+groupId :: Group -> Element
+groupId = undefined
+
+groupPower :: Group -> Element -> Int
+groupPower = undefined
 
 -- |This function naively checks if a group is abelian
 abelian :: Group -> Bool
-abelian g = any (uncurry (==)) $ commutePairs g
+abelian g = all (uncurry (==)) $ commutePairs g
 
 -- |This function converts a group into a list of pairs containing the
 -- results of each pair of elements applied to eachother in both orders.
@@ -50,13 +57,13 @@ commutePairs g =
 -- |Given a modulus and a list of integers, create a map from the elements
 -- to their sums reduced by the modulus.
 zMap :: Int -> [Int] -> M.Map (Element, Element) Element
-zMap n mem = M.fromList [((Element $ show x, Element $ show y), Element $ show $ x + y `mod` n) | x <- mem, y <- mem]
+zMap n mem = M.fromList [((Element $ show x, Element $ show y), Element $ show $ (x + y) `mod` n) | x <- mem, y <- mem]
 
 -- |Build the group Z_n from the provided integer.
 groupZ :: Int -> Group
 groupZ n =
   let
-    groupMembers = [0 .. n]
+    groupMembers = [0 .. (n - 1)]
     opm = zMap n groupMembers
   in
     Group (S.fromList $ map (Element . show) groupMembers) opm

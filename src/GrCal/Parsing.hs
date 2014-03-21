@@ -1,4 +1,4 @@
-module GrCal.Parsing (Expr, Elem, Stmt, stmt, Table(..), TableLine(..), table, parseTable) where
+module GrCal.Parsing (Expr, Elem, Stmt, stmt, Table(..), TableLine(..), table, unelems, parseTable) where
 
 import Prelude hiding (elem, lines)
 import Text.ParserCombinators.Parsec
@@ -19,6 +19,15 @@ data Table = Table {
   elementRow :: TableLine,
   operationRows :: [TableLine]
 } deriving (Show)
+
+unid :: Id -> String
+unid (Id s) = s
+
+unelem :: Elem -> Id
+unelem (Elem s) = s
+
+unelems :: Elem -> String
+unelems (Elem s) = unid s
 
 -- |This parser just gets the reserved word let
 let' :: Parser Let
