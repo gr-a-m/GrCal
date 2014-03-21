@@ -2,9 +2,10 @@ module GrCal.GroupInput where
 
 import qualified Data.Array as A
 import qualified Data.List as L
+import qualified Data.Map.Strict as M
 import qualified Data.Set as S
 import GrCal.Parsing
-import GrCal.Types (Group)
+import GrCal.Group
 import Text.ParserCombinators.Parsec
 
 data InputError = GroupError String | InputParseError ParseError deriving Show
@@ -21,9 +22,32 @@ readGroup input =
         Left groupErrors -> Left groupErrors
         Right _ -> Right $ convertTable parsedTable
 
+-- |Convert a 2D Map based on a list of ordered elements and the associated
+-- operation matrix.
+buildMap :: [a] -> [[a]] -> M.Map (a, a) a
+buildMap elems mat =
+  let
+    zipped = zip elems mat
+  in
+    foldl (\ a b -> M.union a $ buildPairs (fst b) elems (snd b)) M.empty mat
+
+-- |Helper for buildMap
+buildPairs :: a -> [a] -> [a] -> M.Map (a, a) a
+buildPairs x elems line =
+  let
+    zipped = zip elems line
+  in
+    foldl (\ a b -> M.insert (x, fst b) (snd b) a) M.empty zipped
+
 -- |This function takes a valid table and produces a Group structure
 convertTable :: Table -> Group
-convertTable t = undefined
+convertTable t =
+  let
+    tableElements = elementList $ elementRow t
+    members = S.fromList tableElements
+    operationMap = buildMap $ operationRows t
+  in
+    Group members operationMap
 
 -- |This is used by checkAll to convert a list of eithers to just the left
 -- values.
@@ -32,6 +56,8 @@ leftOrNone e = case e of
   Right m -> []
   Left m -> [m]
 
+-- |This function simply runs all of the other checks and either returns
+-- a True value or the list of errors encountered.
 checkAll :: Table -> Either InputErrors Bool
 checkAll t =
   let
