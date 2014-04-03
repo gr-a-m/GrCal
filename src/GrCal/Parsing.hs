@@ -1,4 +1,15 @@
-module GrCal.Parsing (Expr, Elem, Stmt, stmt, Table(..), TableLine(..), table, unelems, parseTable) where
+module GrCal.Parsing (
+  Expr,
+  Elem (..),
+  Stmt,
+  stmt,
+  Table(..),
+  TableLine(..),
+  table,
+  unelems,
+  makeElem,
+  parseTable
+) where
 
 import Prelude hiding (elem, lines)
 import Text.ParserCombinators.Parsec
@@ -19,6 +30,9 @@ data Table = Table {
   elementRow :: TableLine,
   operationRows :: [TableLine]
 } deriving (Show)
+
+makeElem :: String -> Elem
+makeElem = Elem . Id
 
 unid :: Id -> String
 unid (Id s) = s

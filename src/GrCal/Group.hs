@@ -32,11 +32,16 @@ cyclic' g c e n = -- Next is c^{size - n + 2}
     else
       cyclic' g c (fromMaybe e next) (n - 1)
 
+-- |This function is used to get the identity of a group.
 groupId :: Group -> Element
 groupId = undefined
 
-groupPower :: Group -> Element -> Int
-groupPower = undefined
+-- |This function takes an element g from the group G and computes g^n
+groupPower :: Group -> Element -> Int -> Element
+groupPower g _ 0 = groupId g
+groupPower _ e 1 = e
+groupPower g e n =
+  M.findWithDefault (groupId g) (groupPower g e (quot n 2), groupPower g e (quot n 2)) (groupOperation g)
 
 -- |This function naively checks if a group is abelian
 abelian :: Group -> Bool
