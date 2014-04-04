@@ -32,6 +32,26 @@ cyclic' g c e n = -- Next is c^{size - n + 2}
     else
       cyclic' g c (fromMaybe e next) (n - 1)
 
+-- |Function to compute the order of an element in a group
+order :: Group -> Element -> Int
+order g a = order' g a a 1
+
+-- |Helper function to order
+order' :: Group -> Element -> Element -> Int -> Int
+order' g a b n =
+  let
+    Just next = M.lookup (a, b) (groupOperation g)
+  in
+    if next == a then
+      n
+    else
+      order' g a next (n + 1)
+
+-- |This function takes a group and produces a map from the elements of the
+-- group to their orders
+elementOrders :: Group -> M.Map Element Int
+elementOrders g = M.fromList $ S.elems $ S.map (\ a -> (a, order g a)) $ members g
+
 -- |This function is used to get the identity of a group.
 groupId :: Group -> Element
 groupId = undefined

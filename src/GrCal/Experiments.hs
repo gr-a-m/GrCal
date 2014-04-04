@@ -37,8 +37,8 @@ indirectProductTable n m a =
 indirectProduct :: Int -> Int -> Int -> (Int, Int) -> (Int, Int) -> (Int, Int)
 indirectProduct n m a (u, v) (w, y) = ((u + w * a^y) `mod` n, (v + y) `mod` m)
 
-validMap :: Int -> Int -> M.Map (Int, Int, Int) Bool
-validMap maxN maxM =
+invalidMap :: Int -> Int -> M.Map (Int, Int, Int) Bool
+invalidMap maxN maxM =
   let
     params = [(n, m, a) | n <- [1 .. maxN], m <- [1 .. maxM], a <- [2 .. (n - 1)], gcd n a == 1]
   in
@@ -50,14 +50,38 @@ insertEither ma (n, m, a) =
     Left ie -> M.insert (n, m, a) False ma
     Right _ -> ma
 
+validInvalid :: Int -> Int -> ([(Int, Int, Int)], [(Int, Int, Int)])
+validInvalid maxN maxM =
+  let
+    params = [(n, m, a) | n <- [1 .. maxN], m <- [1 .. maxM], a <- [2 .. (n - 1)], gcd n a == 1]
+  in
+    foldl' accumPoints ([],[]) params
+
+validInvalid' :: Int -> Int -> ([(Int, Int, Int)], [(Int, Int, Int)])
+validInvalid' n maxM =
+  let
+    params = [(n, m, a) | m <- [1 .. maxM], a <- [2 .. (n - 1)], gcd n a == 1]
+  in
+    foldl' accumPoints ([], []) params
+
+accumPoints :: ([(Int, Int, Int)], [(Int, Int, Int)]) -> (Int, Int, Int) -> ([(Int, Int, Int)], [(Int, Int, Int)])
+accumPoints (xs, ys) (n, m, a) =
+  case checkAll $ indirectProductTable n m a of
+    Left _ -> ((n, m, a) : xs, ys)
+    Right _ -> (xs, (n, m, a) : ys)
+
+-- |Take a max value of n and produce the values that create cyclic zstar
+-- groups
 checkZStar :: Int -> [Int]
 checkZStar n =
   filter (cyclic . convertTable . zStarTable) [2 .. n]
 
+-- |Taking a value of n and a list of elements, produce the operation table
 zStarOp :: Int -> [Int] -> [[Int]]
 zStarOp n elems =
   [[(x * y) `mod` n | y <- elems] | x <- elems]
 
+-- |Produce a table for Z_n^*
 zStarTable :: Int -> Table
 zStarTable n =
   let
