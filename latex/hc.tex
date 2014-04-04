@@ -1,0 +1,42 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage[margin=1in]{geometry}
+
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{polynom}
+
+\title{MAT 444 Honors Contract}
+\author{Grant Marshall}
+\date{\today}
+
+\newtheorem{prop}{Proposition}
+\newtheorem{conj}{Conjecture}
+\theoremstyle{definition}
+\newtheorem{plm}{Problem}
+
+\begin{document}
+
+\maketitle
+
+\begin{conj}
+$\mathbb{Z}_n^*$ is cyclic iff $n < 8$, $n = p^k$, or $n = 2p^k$ where $p$ is an odd prime and $k \geq 1$.
+\end{conj}
+
+\begin{prop}
+If $n = p^k$ where $p$ is an odd prime and $k \in \mathbb{Z}^+$, $\mathbb{Z}_n^\ast$ is cyclic.
+\end{prop}
+
+\begin{proof}
+Suppose that $p$ is an odd prime and $k \geq 1$. We will show that $\mathbb{Z}_{p^k}^* \cong \mathbb{Z}_{p^{k - 1}(p - 1)}$. From Euler's Theorem, we know that $\phi(p^k) = p^{k - 1}(p - 1)$, so $\lvert \mathbb{Z}_{p^k}^* \rvert = p^{k - 1}(p - 1) = \lvert \mathbb{Z}_{p^{k - 1}(p - 1)} \rvert$. Let's define a function $\phi: \mathbb{Z}_{p^k}^* \to \mathbb{Z}_{p^{k - 1}} \times \mathbb{Z}_{(p - 1)}$ by $pq + r \mapsto (q, r)$.
+\end{proof}
+
+\begin{prop}
+If $n = 4m$ where $m > 1$, $\mathbb{Z}_n^*$
+\end{prop}
+
+\end{document}
