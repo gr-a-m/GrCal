@@ -135,6 +135,15 @@ listMat' :: Int -> [a] -> [((Int, Int), a)]
 listMat' n ls =
   [((n, x), a) | (a, x) <- zip ls [1..(length ls)]]
 
+checkAssociative :: Table -> Bool
+checkAssociative t =
+  let
+    op = operationArray $ operationRows t
+    pairs = [(x, y) | x <- [1 .. (length $ operationRows t)], y <- [1 .. (length $ operationRows t)]]
+  in
+    foldl (\ prev pair -> prev && (A.! op pair == A.! op (snd pair, fst pair))) False pairs
+
+
 -- |This function checks that the operation is properly defined (i.e.
 -- "sudoku rules")
 checkOperation :: Table -> Either InputError Bool
