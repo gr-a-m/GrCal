@@ -169,7 +169,10 @@ checkTriple t (a, b, c) =
     bc = M.lookup (b, c) operation
   in
     case (ab, bc) of
-      (Just ab', Just bc') -> M.lookup (ab', c) operation == M.lookup (a, bc') operation
+      (Just ab', Just bc') ->
+        case M.lookup (ab', c) operation of
+          Just abc -> maybe False (\y -> abc == y) $ M.lookup (a, bc') operation
+          Nothing -> False
       otherwise -> False
 
 -- |This function checks that the operation is properly defined (i.e.

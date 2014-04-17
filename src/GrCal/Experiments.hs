@@ -37,17 +37,17 @@ indirectProductTable n m a =
 indirectProduct :: Int -> Int -> Int -> (Int, Int) -> (Int, Int) -> (Int, Int)
 indirectProduct n m a (u, v) (w, y) = ((u + w * a^y) `mod` n, (v + y) `mod` m)
 
-invalidMap :: Int -> Int -> M.Map (Int, Int, Int) Bool
+invalidMap :: Int -> Int -> M.Map (Int, Int, Int) InputErrors
 invalidMap maxN maxM =
   let
     params = [(n, m, a) | n <- [1 .. maxN], m <- [1 .. maxM], a <- [2 .. (n - 1)], gcd n a == 1]
   in
     foldl' insertEither M.empty params
 
-insertEither :: M.Map (Int, Int, Int) Bool -> (Int, Int, Int) -> M.Map (Int, Int, Int) Bool
+insertEither :: M.Map (Int, Int, Int) InputErrors -> (Int, Int, Int) -> M.Map (Int, Int, Int) InputErrors
 insertEither ma (n, m, a) =
   case checkAll $ indirectProductTable n m a of
-    Left ie -> M.insert (n, m, a) False ma
+    Left ie -> M.insert (n, m, a) ie ma
     Right _ -> ma
 
 validInvalid :: Int -> Int -> ([(Int, Int, Int)], [(Int, Int, Int)])
