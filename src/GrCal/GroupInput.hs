@@ -46,11 +46,22 @@ opToElem = map (map (Element . unelems ) . elementList)
 convertTable :: Table -> Group
 convertTable t =
   let
-    tableElements = elementList $ elementRow t
-    members = map (Element . unelems) tableElements
-    operationMap = buildMap members $ opToElem $ operationRows t
+    members = tableMembers t
+    operationMap = tableMap t
   in
     Group (S.fromList members) operationMap
+
+tableMembers :: Table -> [Element]
+tableMembers t = map (Element . unelems) (elementList $ elementRow t)
+
+-- |This function creates an M.Map from a Table representing the operation.
+tableMap :: Table -> M.Map (Element, Element) Element
+tableMap t =
+  let
+    tableElements = elementList $ elementRow t
+    members = map (Element . unelems) tableElements
+  in
+    buildMap members $ opToElem $ operationRows t
 
 -- |This is used by checkAll to convert a list of eithers to just the left
 -- values.
@@ -67,7 +78,8 @@ checkAll t =
     unique = checkUniqueness t
     lengths = checkLengths t (length $ elementList $ elementRow t)
     operationCheck = checkOperation t
-    errors = foldl (\a b -> a ++ leftOrNone b) [] [unique, lengths, operationCheck]
+    associativeCheck = checkAssociative t
+    errors = foldl (\a b -> a ++ leftOrNone b) [] [unique, lengths, operationCheck, associativeCheck]
   in
     if null errors then
       Right True
@@ -135,14 +147,30 @@ listMat' :: Int -> [a] -> [((Int, Int), a)]
 listMat' n ls =
   [((n, x), a) | (a, x) <- zip ls [1..(length ls)]]
 
-checkAssociative :: Table -> Bool
+-- |Function to check if a Group table is associative.
+checkAssociative :: Table -> Either InputError Bool
 checkAssociative t =
   let
-    op = operationArray $ operationRows t
-    pairs = [(x, y) | x <- [1 .. (length $ operationRows t)], y <- [1 .. (length $ operationRows t)]]
+    members = tableMembers t
+    triples = [(x, y, z) | x <- members, y <- members, z <- members]
   in
-    foldl (\ prev pair -> prev && (A.! op pair == A.! op (snd pair, fst pair))) False pairs
+    if all (checkTriple t) triples then
+      Right True
+    else
+      Left $ GroupError "Operation not associative"
 
+-- |Function to check is the operation for a given triple is associative;
+-- i.e. checks if (a * b) * c = a * (b * c)
+checkTriple :: Table -> (Element, Element, Element) -> Bool
+checkTriple t (a, b, c) =
+  let
+    operation = tableMap t
+    ab = M.lookup (a, b) operation
+    bc = M.lookup (b, c) operation
+  in
+    case (ab, bc) of
+      (Just ab', Just bc') -> M.lookup (ab', c) operation == M.lookup (a, bc') operation
+      otherwise -> False
 
 -- |This function checks that the operation is properly defined (i.e.
 -- "sudoku rules")
