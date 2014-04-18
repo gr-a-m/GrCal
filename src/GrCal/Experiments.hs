@@ -50,6 +50,9 @@ insertEither ma (n, m, a) =
     Left ie -> M.insert (n, m, a) ie ma
     Right _ -> ma
 
+-- |This function takes a range of values for n and m and produces the
+-- semidirect product groups for each pair in the ranges and every choice
+-- of a for the pairs.
 validInvalid :: Int -> Int -> ([(Int, Int, Int)], [(Int, Int, Int)])
 validInvalid maxN maxM =
   let
