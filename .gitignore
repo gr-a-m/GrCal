@@ -1,2 +1,7 @@
+latex/*.aux
+latex/*.fdb_latexmk
+latex/*.log
+latex/*.pdf
+latex/*.synctex.gz
 dist/
 .DS_Store
