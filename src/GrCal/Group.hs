@@ -6,6 +6,7 @@ import qualified Data.Set as S
 
 -- |An element is just some identifying string
 newtype Element = Element String deriving (Show, Ord, Eq)
+
 -- |A group is a set of elements and the operation that maps a pair of
 -- elements to another element.
 data Group = Group {

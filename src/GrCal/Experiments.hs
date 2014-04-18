@@ -35,7 +35,8 @@ semidirectProductTable n m a =
 -- |This function takes the groups of the coordinates, the value of a, and
 -- two points and computes the indirect product with this information.
 semidirectProduct :: Int -> Int -> Int -> (Int, Int) -> (Int, Int) -> (Int, Int)
-semidirectProduct n m a (u, v) (w, y) = ((u + (w * (a^v))) `rem` n, (v + y) `rem` m)
+semidirectProduct n m a (u, v) (w, y) =
+  ((u + (w * (a^v))) `rem` n, (v + y) `rem` m)
 
 invalidMap :: Int -> Int -> M.Map (Int, Int, Int) InputErrors
 invalidMap maxN maxM =

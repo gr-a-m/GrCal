@@ -1,7 +1,7 @@
-latex/*.aux
-latex/*.fdb_latexmk
-latex/*.log
-latex/*.pdf
-latex/*.synctex.gz
+latex/hc.aux
+latex/hc.fdb_latexmk
+latex/hc.log
+latex/hc.pdf
+latex/hc.synctex.gz
 dist/
 .DS_Store
