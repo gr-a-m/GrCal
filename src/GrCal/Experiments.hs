@@ -57,7 +57,7 @@ insertEither ma (n, m, a) =
 validInvalid :: Int -> Int -> ([(Int, Int, Int)], [(Int, Int, Int)])
 validInvalid maxN maxM =
   let
-    params = [(n, m, a) | n <- [1 .. maxN], m <- [1 .. maxM], a <- [2 .. (n - 1)], gcd n a == 1]
+    params = [(n, m, a) | n <- [1 .. maxN], m <- [1 .. maxM], a <- [2 .. (n - 1)], gcd a n == 1]
   in
     foldl' accumPoints ([],[]) params
 

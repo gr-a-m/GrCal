@@ -140,7 +140,7 @@ operationArray lines =
 -- |Convert a 2d list into a 2d array with Int indices
 listMat :: [[a]] -> [((Int, Int), a)]
 listMat elements =
-  concatMap (uncurry listMat') (zip [1..(length elements)] elements)
+  concatMap (uncurry listMat') (zip [1 .. (length elements)] elements)
 
 -- |Helper for listMat
 listMat' :: Int -> [a] -> [((Int, Int), a)]
@@ -154,17 +154,16 @@ checkAssociative t =
     members = tableMembers t
     triples = [(x, y, z) | x <- members, y <- members, z <- members]
   in
-    if all (checkTriple t) triples then
+    if all (checkTriple (tableMap t)) triples then
       Right True
     else
       Left $ GroupError "Operation not associative"
 
 -- |Function to check is the operation for a given triple is associative;
 -- i.e. checks if (a * b) * c = a * (b * c)
-checkTriple :: Table -> (Element, Element, Element) -> Bool
-checkTriple t (a, b, c) =
+checkTriple :: M.Map (Element, Element) Element -> (Element, Element, Element) -> Bool
+checkTriple operation (a, b, c) =
   let
-    operation = tableMap t
     ab = M.lookup (a, b) operation
     bc = M.lookup (b, c) operation
   in
